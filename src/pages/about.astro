@@ -1,0 +1,44 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE } from "../data/site";
+
+const title = "About Voice Gender Test";
+const description = "Why Voice Gender Test focuses on transparent acoustic measurements, local processing, and vocal presentation rather than identity labels.";
+---
+
+<BaseLayout title={title} description={description} pathname="/about/">
+  <header class="page-hero">
+    <div class="shell page-hero-inner">
+      <span class="eyebrow">About the project</span>
+      <h1>A voice tool with visible boundaries</h1>
+      <p>{SITE.name} was created to make basic voice measurements easy to explore without turning a recording into an identity verdict.</p>
+    </div>
+  </header>
+
+  <article class="content-shell prose">
+    <h2>Why this tool exists</h2>
+    <p>People search for voice gender tests for many reasons: curiosity, voice acting, presentation practice, or tracking changes during voice training. Many tools answer with one confident percentage while hiding how it was produced.</p>
+    <p>We take a different approach. The test shows a small set of understandable acoustic dimensions and names what those measurements cannot tell you.</p>
+
+    <h2>Our product principles</h2>
+    <ul>
+      <li><strong>Presentation is not identity.</strong> A recording cannot determine who someone is.</li>
+      <li><strong>No result is better than a bad result.</strong> Low-quality samples are rejected instead of guessed.</li>
+      <li><strong>Privacy should be structural.</strong> Audio remains on the device rather than relying only on a promise to delete an upload.</li>
+      <li><strong>Measurements should be inspectable.</strong> Methodology and limitations are part of the product.</li>
+      <li><strong>Comfort comes first.</strong> No number is worth painful or strained voice practice.</li>
+    </ul>
+
+    <h2>What this is not</h2>
+    <p>This site is not a medical device, clinical voice evaluation, identity detector, or substitute for a qualified speech-language professional. It does not provide a certified assessment or guarantee how other people will perceive a voice.</p>
+
+    <h2>Contact</h2>
+    <p>Questions, corrections, and accessibility feedback are welcome at <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+
+    <div class="cta-panel">
+      <h2>See the measurement process</h2>
+      <p>Review the algorithms, quality gates, sources, and known limitations.</p>
+      <a class="text-link" href="/methodology/">Read the methodology <span aria-hidden="true">→</span></a>
+    </div>
+  </article>
+</BaseLayout>

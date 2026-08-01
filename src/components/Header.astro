@@ -1,0 +1,16 @@
+---
+import BrandMark from "./BrandMark.astro";
+import { navItems, SITE } from "../data/site";
+---
+
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="/" aria-label={`${SITE.name} home`}>
+      <BrandMark />
+      <span>{SITE.name}</span>
+    </a>
+    <nav aria-label="Main navigation">
+      {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+    </nav>
+  </div>
+</header>

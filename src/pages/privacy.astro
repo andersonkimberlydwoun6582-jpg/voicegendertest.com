@@ -1,0 +1,41 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE } from "../data/site";
+
+const title = "Privacy Policy | Voice Gender Test";
+const description = "Learn how Voice Gender Test keeps audio processing in your browser and what ordinary website request data may still be handled.";
+---
+
+<BaseLayout title={title} description={description} pathname="/privacy/">
+  <header class="page-hero">
+    <div class="shell page-hero-inner">
+      <span class="eyebrow">Privacy policy · Updated August 1, 2026</span>
+      <h1>Your recording is not uploaded</h1>
+      <p>The product is designed so the core voice test can work without sending your audio or acoustic result to us.</p>
+    </div>
+  </header>
+
+  <article class="content-shell prose">
+    <h2>Audio and microphone access</h2>
+    <p>Microphone access begins only after you press the test button and approve the browser permission prompt. Audio is processed temporarily in the active page using browser audio features. The application does not transmit the recording to an application server, save it to a database, or place it in localStorage or IndexedDB.</p>
+    <p>The current measurement and result disappear when you refresh or close the page. Your browser and operating system control microphone permissions, which you can revoke at any time.</p>
+
+    <h2>Accounts, advertising, and analytics</h2>
+    <p>The initial version has no user accounts, advertising trackers, marketing pixels, or application-level analytics scripts. It does not create a profile from your voice test.</p>
+
+    <h2>Ordinary website request data</h2>
+    <p>Like other websites, our hosting and network providers may process ordinary request metadata needed to deliver and protect the site. This may include an IP address, browser information, requested URL, timestamps, and security events. Those providers handle data under their own policies and infrastructure controls.</p>
+
+    <h2>External links</h2>
+    <p>Methodology and resource pages may link to professional or academic sources. Their privacy practices apply after you leave this website.</p>
+
+    <h2>Children</h2>
+    <p>This site is an educational acoustic tool and is not designed to collect personal information from children. Because no account is required, please do not send identifying or sensitive information by email.</p>
+
+    <h2>Changes</h2>
+    <p>If the product later adds analytics, accounts, server processing, or other data collection, this policy and the interface will be updated before those features are enabled.</p>
+
+    <h2>Contact</h2>
+    <p>For privacy questions, email <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+  </article>
+</BaseLayout>

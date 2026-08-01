@@ -1,0 +1,69 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE } from "../data/site";
+
+const title = "Methodology and Limitations | Voice Gender Test";
+const description = "See how Voice Gender Test measures pitch, pitch variability, spectral brightness, and recording quality locally in your browser.";
+---
+
+<BaseLayout title={title} description={description} pathname="/methodology/">
+  <header class="page-hero">
+    <div class="shell page-hero-inner">
+      <span class="eyebrow">Open methodology</span>
+      <h1>What we measure—and what we don’t</h1>
+      <p>This page describes the current browser-based method, its quality checks, and the limits you should keep in mind when reading a result.</p>
+    </div>
+  </header>
+
+  <article class="content-shell prose">
+    <div class="callout">
+      <strong>Short version</strong>
+      <p>{SITE.name} reports acoustic characteristics of one recording. It does not identify a speaker’s gender, diagnose a condition, or predict how every listener will perceive a voice.</p>
+    </div>
+
+    <h2>Processing happens locally</h2>
+    <p>After you actively grant microphone permission, the page samples five seconds of sound through the Web Audio API. Short analysis frames are processed in memory. The application does not use an upload endpoint, database, or browser storage for audio or results.</p>
+
+    <h2>The four reported dimensions</h2>
+    <div class="definition-grid">
+      <div><strong>Median pitch</strong><span>The median estimated fundamental frequency (F0) across usable voiced frames, measured in hertz.</span></div>
+      <div><strong>Pitch movement</strong><span>The interquartile range of usable pitch estimates after converting them to semitones.</span></div>
+      <div><strong>Spectral brightness proxy</strong><span>The median spectral centroid of usable frames. It describes energy balance, not vocal-tract anatomy.</span></div>
+      <div><strong>Recording quality</strong><span>An engineering check based on level, clipping, valid voiced-frame coverage, and periodicity.</span></div>
+    </div>
+
+    <h2>Pitch estimation</h2>
+    <p>The site uses a YIN-style difference function and cumulative mean normalized difference to estimate the repeating period of voiced sound. Frames that are too quiet, outside the expected speaking range, or insufficiently periodic are discarded. A median is used so a small number of incorrect frames have less influence than they would on a simple average.</p>
+    <p>The current search range is an engineering boundary of 65–500 Hz. It is not a male/female classification range. Voices and speaking styles can fall outside it.</p>
+
+    <h2>Why there is no gender percentage</h2>
+    <p>Vocal gender perception is influenced by more than fundamental frequency. Resonance, intonation, voice quality, articulation, language, nonverbal communication, context, and listener expectations can all matter. The American Speech-Language-Hearing Association recommends a multidimensional, person-centered approach and cautions against overemphasizing speaking pitch.</p>
+    <p>A browser recording cannot represent all of those factors, and this version has not been validated on a population dataset. A “78% feminine” or “92% masculine” result would therefore imply a level of calibration the product does not have.</p>
+
+    <h2>Quality gates</h2>
+    <p>The analyzer declines to show metrics when the sample is too quiet, visibly clipped, or lacks enough reliable voiced frames. These thresholds were chosen to prevent obviously poor signals from becoming precise-looking results. They are tested against generated signals, but they are not clinical cutoffs.</p>
+
+    <h2>Sources of variation</h2>
+    <ul>
+      <li><strong>Words and delivery:</strong> the phrase, emotion, emphasis, and speech melody change the sample.</li>
+      <li><strong>Microphone:</strong> devices color the frequency spectrum differently.</li>
+      <li><strong>Room:</strong> reflections, fans, traffic, and other voices reduce measurement quality.</li>
+      <li><strong>Distance and level:</strong> moving closer can increase bass energy; speaking too loudly can clip.</li>
+      <li><strong>Language and accent:</strong> speech patterns affect intonation and timing.</li>
+    </ul>
+    <p>For repeat comparisons, use the same sentence, microphone, room, distance, and comfortable speaking volume.</p>
+
+    <h2>References and further reading</h2>
+    <ul class="reference-list">
+      <li><a href="https://www.asha.org/practice-portal/professional-issues/gender-affirming-voice-and-communication/" rel="external">American Speech-Language-Hearing Association: Gender Affirming Voice and Communication</a></li>
+      <li><a href="https://pubmed.ncbi.nlm.nih.gov/34240071/" rel="external">Examining the voice of Israeli transgender women: acoustic measures, voice femininity, and voice-related quality of life</a></li>
+      <li><a href="https://pubmed.ncbi.nlm.nih.gov/23084812/" rel="external">Perceptual and acoustic outcomes of voice therapy immediately after therapy and at follow-up</a></li>
+    </ul>
+
+    <div class="cta-panel">
+      <h2>Ready for a careful snapshot?</h2>
+      <p>Record the same phrase in a quiet room, then read each dimension separately.</p>
+      <a class="text-link" href="/">Open the voice test <span aria-hidden="true">→</span></a>
+    </div>
+  </article>
+</BaseLayout>

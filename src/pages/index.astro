@@ -1,0 +1,179 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import VoiceAnalyzer from "../components/VoiceAnalyzer";
+import { faqs, SITE } from "../data/site";
+
+const title = "Voice Gender Test – Analyze Vocal Presentation";
+const description = SITE.description;
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE.name,
+    url: SITE.url,
+    email: SITE.email,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE.name,
+    url: SITE.url,
+    description,
+    inLanguage: "en",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: SITE.name,
+    url: SITE.url,
+    description,
+    applicationCategory: "MultimediaApplication",
+    operatingSystem: "Any",
+    browserRequirements: "Requires JavaScript, Web Audio API, and microphone access",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  },
+];
+---
+
+<BaseLayout title={title} description={description} pathname="/" structuredData={structuredData}>
+  <section class="hero">
+    <div class="shell hero-inner">
+      <span class="eyebrow">Private acoustic analysis · No signup</span>
+      <h1>Voice Gender Test for <em>Vocal Presentation</em></h1>
+      <p class="hero-copy">
+        Record five seconds of natural speech and explore the pitch, movement, and spectral balance of this recording—without uploading your voice or assigning your identity.
+      </p>
+      <div class="trust-row" aria-label="Product benefits">
+        <span>Free to use</span>
+        <span>Audio stays on device</span>
+        <span>Works on mobile</span>
+        <span>No binary score</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="shell tool-wrap">
+    <VoiceAnalyzer client:load />
+  </div>
+
+  <section class="section section-contrast" aria-labelledby="measures-title">
+    <div class="shell">
+      <div class="section-heading">
+        <span class="eyebrow">A clearer result</span>
+        <h2 id="measures-title">Four measurements, not one mysterious score</h2>
+        <p>Vocal presentation is multidimensional. We show the measurements this browser can support and name the limits it cannot cross.</p>
+      </div>
+      <div class="four-grid">
+        <article class="info-card">
+          <span class="info-number">01</span>
+          <h3>Median pitch</h3>
+          <p>The central fundamental frequency across usable speaking frames, shown in hertz.</p>
+        </article>
+        <article class="info-card">
+          <span class="info-number">02</span>
+          <h3>Pitch movement</h3>
+          <p>How much pitch varies during the sample, summarized on a musical semitone scale.</p>
+        </article>
+        <article class="info-card">
+          <span class="info-number">03</span>
+          <h3>Spectral balance</h3>
+          <p>A brightness proxy derived from the energy distribution—not a direct resonance measurement.</p>
+        </article>
+        <article class="info-card">
+          <span class="info-number">04</span>
+          <h3>Signal quality</h3>
+          <p>A check for volume, clipping, and measurable voiced frames before any result appears.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="how-title">
+    <div class="shell split">
+      <div class="section-heading sticky-copy">
+        <span class="eyebrow">How it works</span>
+        <h2 id="how-title">Your voice stays between you and your browser</h2>
+        <p>The tool listens only after you press the button, analyzes short frames locally, and discards them when the test ends.</p>
+        <a class="text-link" href="/methodology/">Read the full methodology <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="feature-list">
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">1</span>
+          <div><h3>Speak naturally</h3><p>Use the suggested phrase or any continuous sentence in your comfortable speaking voice.</p></div>
+        </article>
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">2</span>
+          <div><h3>Pass the quality checks</h3><p>Quiet, clipped, or irregular recordings are stopped instead of being turned into false precision.</p></div>
+        </article>
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">3</span>
+          <div><h3>Review the dimensions</h3><p>See pitch, variation, and brightness separately so you know what actually changed.</p></div>
+        </article>
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">4</span>
+          <div><h3>Repeat consistently</h3><p>For training comparisons, keep your phrase, room, device, distance, and volume as similar as possible.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-mint" aria-labelledby="meaning-title">
+    <div class="shell">
+      <div class="section-heading">
+        <span class="eyebrow">What the result means</span>
+        <h2 id="meaning-title">Sound traits can shape perception. They do not define a person.</h2>
+        <p>Listeners may associate combinations of pitch, resonance, intonation, articulation, and context with gendered presentation. Those associations vary across people and cultures, and their acoustic ranges overlap.</p>
+      </div>
+      <div class="three-grid">
+        <article class="info-card"><h3>Use it as a snapshot</h3><p>A result belongs to one phrase, one microphone, and one moment—not to your identity as a whole.</p></article>
+        <article class="info-card"><h3>Look for patterns</h3><p>Several comparable recordings are more useful for practice than treating one result as a verdict.</p></article>
+        <article class="info-card"><h3>Protect your voice</h3><p>Comfort matters more than a number. Stop if voice practice causes pain, strain, or lasting hoarseness.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="privacy-title">
+    <div class="shell privacy-banner">
+      <div>
+        <span class="eyebrow">Privacy by architecture</span>
+        <h2 id="privacy-title">There is no audio upload to trust us with.</h2>
+        <p>The application has no audio endpoint, account database, recording history, advertising tag, or analytics script. Processing happens in the active browser tab.</p>
+      </div>
+      <a class="text-link" href="/privacy/">Read privacy details <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-title">
+    <div class="shell">
+      <div class="section-heading">
+        <span class="eyebrow">Questions, answered plainly</span>
+        <h2 id="faq-title">Voice gender test FAQ</h2>
+        <p>What this tool can measure, where it can be useful, and where its limits begin.</p>
+      </div>
+      <div class="faq-list">
+        {faqs.map((faq) => (
+          <details>
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

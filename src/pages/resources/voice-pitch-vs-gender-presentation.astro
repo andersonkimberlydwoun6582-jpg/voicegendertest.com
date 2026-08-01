@@ -1,0 +1,63 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const title = "Voice Pitch vs. Gender Presentation | Voice Gender Test";
+const description = "Understand how pitch can influence vocal gender presentation, why ranges overlap, and why resonance, intonation, and context also matter.";
+---
+
+<BaseLayout title={title} description={description} pathname="/resources/voice-pitch-vs-gender-presentation/">
+  <header class="page-hero">
+    <div class="shell page-hero-inner">
+      <span class="eyebrow">Voice guide · 7 minute read</span>
+      <h1>Voice pitch and gender presentation are related—not identical</h1>
+      <p>Pitch is easy to measure, so voice apps often give it too much authority. Here is a more useful way to read the number.</p>
+    </div>
+  </header>
+
+  <article class="content-shell prose">
+    <h2>What pitch actually measures</h2>
+    <p>When vocal-fold vibration is reasonably regular, fundamental frequency (F0) describes how often that pattern repeats each second. The unit is hertz. A faster repetition generally sounds higher; a slower repetition generally sounds lower.</p>
+    <p>Speaking pitch is not one fixed value. It rises and falls throughout a sentence. That is why this site reports a median across usable frames and separately describes pitch movement.</p>
+
+    <h2>Why a single cutoff does not work</h2>
+    <p>Research and clinical resources sometimes describe pitch regions that listeners are more likely to associate with masculine, androgynous, or feminine presentation. Those regions overlap. They are population observations—not rules that can determine the gender of an individual speaker.</p>
+    <div class="callout">
+      <strong>A useful distinction</strong>
+      <p>Pitch can be evidence about one sound characteristic. It is not evidence of someone’s gender identity.</p>
+    </div>
+
+    <h2>Other cues listeners may hear</h2>
+    <div class="definition-grid">
+      <div><strong>Resonance and formants</strong><span>How sound is shaped by the vocal tract and where spectral energy is concentrated.</span></div>
+      <div><strong>Intonation</strong><span>The direction, size, and timing of pitch movement across words and phrases.</span></div>
+      <div><strong>Voice quality</strong><span>Qualities such as breathiness, brightness, roughness, or vocal weight.</span></div>
+      <div><strong>Articulation and context</strong><span>Speech sounds, language, accent, social cues, and listener expectations.</span></div>
+    </div>
+    <p>A browser microphone cannot capture every cue equally well. This site’s “spectral brightness” result is a limited proxy and should not be read as a complete resonance analysis.</p>
+
+    <h2>How to compare recordings more meaningfully</h2>
+    <ol>
+      <li>Use the same phrase each time.</li>
+      <li>Keep the same microphone and room.</li>
+      <li>Maintain a similar distance and comfortable volume.</li>
+      <li>Make several recordings rather than relying on one.</li>
+      <li>Compare dimensions separately instead of chasing a composite score.</li>
+    </ol>
+
+    <h2>Voice practice should remain comfortable</h2>
+    <p>Numbers can be helpful for feedback, but they can also encourage people to force a sound. Stop if practice causes pain, tightness, loss of voice, or persistent hoarseness. A qualified speech-language professional can help with individualized and vocally safe goals.</p>
+
+    <h2>Further reading</h2>
+    <ul class="reference-list">
+      <li><a href="https://www.asha.org/practice-portal/professional-issues/gender-affirming-voice-and-communication/" rel="external">ASHA: Gender Affirming Voice and Communication</a></li>
+      <li><a href="https://pubmed.ncbi.nlm.nih.gov/34240071/" rel="external">Acoustic measures, perceived voice femininity, and voice-related quality of life</a></li>
+      <li><a href="https://pubmed.ncbi.nlm.nih.gov/37481572/" rel="external">Updated systematic review and meta-analysis of speech therapy for transgender women</a></li>
+    </ul>
+
+    <div class="cta-panel">
+      <h2>Explore your recording</h2>
+      <p>Use the result as a descriptive snapshot and keep the limitations on this page in view.</p>
+      <a class="text-link" href="/">Start the voice test <span aria-hidden="true">→</span></a>
+    </div>
+  </article>
+</BaseLayout>
