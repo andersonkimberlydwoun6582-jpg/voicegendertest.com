@@ -3,7 +3,7 @@ export const SITE = {
   url: "https://voicegendertest.com",
   email: "hello@voicegendertest.com",
   description:
-    "Record a short voice sample and explore pitch, pitch variation, and spectral brightness in your browser. Free, private, and no audio uploads.",
+    "Use this free voice gender test to record a sample and explore pitch, variation, and spectral brightness in the browser. Private, with no audio uploads.",
 } as const;
 
 export const navItems = [
