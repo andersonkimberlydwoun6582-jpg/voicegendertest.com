@@ -249,7 +249,7 @@ export default function VoiceAnalyzer() {
         <q>Today I’m checking how my voice sounds in this short recording.</q>
       </div>
 
-      <div className="tool-stage" aria-live="polite">
+      <div className="tool-stage" aria-live="polite" data-clarity-mask="true">
         {status === "idle" && (
           <>
             <div className="mic-orbit" aria-hidden="true"><span className="mic-icon">●</span></div>
