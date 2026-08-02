@@ -290,6 +290,8 @@ nav a:hover { color: var(--ink); }
 .metric-card strong { display: block; margin: 5px 0 2px; font-family: Georgia, serif; font-size: 1.65rem; text-transform: capitalize; }
 .metric-card small { font-size: .8rem; }
 .result-note { margin: 16px 0 22px; padding: 17px 19px; border-left: 4px solid var(--coral); background: #faf0e9; }
+.result-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.share-message { min-height: 1.4em; margin: 10px 0 0; color: var(--ink-soft); font-size: .86rem; }
 .result-note p { margin: 4px 0 0; color: var(--ink-soft); font-size: .9rem; }
 
 .privacy-line { display: flex; align-items: flex-start; gap: 10px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: .86rem; }

@@ -64,17 +64,63 @@ const errorFromUnknown = (error: unknown): ToolError => {
 
 const formatHz = (value: number) => `${Math.round(value)} Hz`;
 
+const copyText = async (text: string) => {
+  if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+  await navigator.clipboard.writeText(text);
+};
+
 export default function VoiceAnalyzer() {
   const [status, setStatus] = useState<Status>("idle");
   const [secondsLeft, setSecondsLeft] = useState(recordingSeconds);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<ToolError | null>(null);
+  const [shareMessage, setShareMessage] = useState("");
 
   const reset = () => {
     setStatus("idle");
     setSecondsLeft(recordingSeconds);
     setResult(null);
     setError(null);
+    setShareMessage("");
+  };
+
+  const shareResult = async () => {
+    if (!result) return;
+
+    const text = [
+      "My Voice Gender Test acoustic snapshot:",
+      `Median pitch: ${formatHz(result.medianPitchHz)} (${result.pitchBand})`,
+      `Pitch movement: ${result.variabilityBand} (${result.pitchVariabilitySemitones.toFixed(1)} semitone IQR)`,
+      `Spectral balance: ${result.brightnessBand} (${formatHz(result.spectralCentroidHz)} brightness proxy)`,
+      `Recording quality: ${result.qualityBand} (${Math.round(result.voicedCoverage * 100)}% measurable frames)`,
+      "These measurements describe one recording, not gender identity.",
+    ].join("\n");
+    const shareData = {
+      title: "My Voice Gender Test result",
+      text,
+      url: "https://voicegendertest.com/",
+    };
+    const copyValue = `${text}\n${shareData.url}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setShareMessage("Result shared.");
+        return;
+      }
+
+      await copyText(copyValue);
+      setShareMessage("Result copied to your clipboard.");
+    } catch (shareError) {
+      if (shareError instanceof DOMException && shareError.name === "AbortError") return;
+
+      try {
+        await copyText(copyValue);
+        setShareMessage("Result copied to your clipboard.");
+      } catch {
+        setShareMessage("Sharing is unavailable in this browser. You can still take a screenshot of the result.");
+      }
+    }
   };
 
   const startRecording = async () => {
@@ -288,7 +334,11 @@ export default function VoiceAnalyzer() {
               <p>Voice perception also involves resonance, articulation, context, and listener expectations that this browser test cannot fully measure.</p>
             </div>
 
-            <button className="secondary-button" type="button" onClick={reset}>Record again</button>
+            <div className="result-actions">
+              <button className="primary-button" type="button" onClick={shareResult}>Share result</button>
+              <button className="secondary-button" type="button" onClick={reset}>Record again</button>
+            </div>
+            <p className="share-message" role="status" aria-live="polite">{shareMessage}</p>
           </div>
         )}
       </div>
