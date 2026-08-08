@@ -1,11 +1,31 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE } from "../../data/site";
 
 const title = "Voice Pitch vs. Gender Presentation | Voice Gender Test";
 const description = "Understand how pitch can influence vocal gender presentation, why ranges overlap, and why resonance, intonation, and context also matter.";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "Voice Pitch vs. Gender Presentation",
+  description,
+  url: `${SITE.url}/resources/voice-pitch-vs-gender-presentation/`,
+  inLanguage: "en",
+  mainEntityOfPage: `${SITE.url}/resources/voice-pitch-vs-gender-presentation/`,
+  author: {
+    "@type": "Organization",
+    name: SITE.name,
+    url: SITE.url,
+  },
+  publisher: {
+    "@type": "Organization",
+    name: SITE.name,
+    url: SITE.url,
+  },
+};
 ---
 
-<BaseLayout title={title} description={description} pathname="/resources/voice-pitch-vs-gender-presentation/">
+<BaseLayout title={title} description={description} pathname="/resources/voice-pitch-vs-gender-presentation/" structuredData={structuredData}>
   <header class="page-hero">
     <div class="shell page-hero-inner">
       <span class="eyebrow">Voice guide · 7 minute read</span>
@@ -17,7 +37,7 @@ const description = "Understand how pitch can influence vocal gender presentatio
   <article class="content-shell prose">
     <h2>What pitch actually measures</h2>
     <p>When vocal-fold vibration is reasonably regular, fundamental frequency (F0) describes how often that pattern repeats each second. The unit is hertz. A faster repetition generally sounds higher; a slower repetition generally sounds lower.</p>
-    <p>Speaking pitch is not one fixed value. It rises and falls throughout a sentence. That is why this site reports a median across usable frames and separately describes pitch movement.</p>
+    <p>Speaking pitch is not one fixed value. It rises and falls throughout a sentence. That is why this site reports a median across usable frames and separately describes pitch movement. See <a href="/methodology/">how the acoustic measurements are calculated</a> for the complete method and its limitations.</p>
 
     <h2>Why a single cutoff does not work</h2>
     <p>Research and clinical resources sometimes describe pitch regions that listeners are more likely to associate with masculine, androgynous, or feminine presentation. Those regions overlap. They are population observations—not rules that can determine the gender of an individual speaker.</p>

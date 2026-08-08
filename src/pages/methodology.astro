@@ -4,9 +4,28 @@ import { SITE } from "../data/site";
 
 const title = "Methodology and Limitations | Voice Gender Test";
 const description = "See how Voice Gender Test measures pitch, pitch variability, spectral brightness, and recording quality locally in your browser.";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  headline: "Methodology and Limitations",
+  description,
+  url: `${SITE.url}/methodology/`,
+  inLanguage: "en",
+  mainEntityOfPage: `${SITE.url}/methodology/`,
+  author: {
+    "@type": "Organization",
+    name: SITE.name,
+    url: SITE.url,
+  },
+  publisher: {
+    "@type": "Organization",
+    name: SITE.name,
+    url: SITE.url,
+  },
+};
 ---
 
-<BaseLayout title={title} description={description} pathname="/methodology/">
+<BaseLayout title={title} description={description} pathname="/methodology/" structuredData={structuredData}>
   <header class="page-hero">
     <div class="shell page-hero-inner">
       <span class="eyebrow">Open methodology</span>
@@ -38,6 +57,7 @@ const description = "See how Voice Gender Test measures pitch, pitch variability
 
     <h2>Why there is no gender percentage</h2>
     <p>Vocal gender perception is influenced by more than fundamental frequency. Resonance, intonation, voice quality, articulation, language, nonverbal communication, context, and listener expectations can all matter. The American Speech-Language-Hearing Association recommends a multidimensional, person-centered approach and cautions against overemphasizing speaking pitch.</p>
+    <p>For a practical explanation of these overlapping cues, read <a href="/resources/voice-pitch-vs-gender-presentation/">how pitch relates to gender presentation</a>.</p>
     <p>A browser recording cannot represent all of those factors, and this version has not been validated on a population dataset. A “78% feminine” or “92% masculine” result would therefore imply a level of calibration the product does not have.</p>
 
     <h2>Quality gates</h2>

@@ -4,9 +4,27 @@ import { SITE } from "../data/site";
 
 const title = "About Voice Gender Test";
 const description = "Why Voice Gender Test focuses on transparent acoustic measurements, local processing, and vocal presentation rather than identity labels.";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: title,
+  description,
+  url: `${SITE.url}/about/`,
+  inLanguage: "en",
+  isPartOf: {
+    "@type": "WebSite",
+    name: SITE.name,
+    url: SITE.url,
+  },
+  mainEntity: {
+    "@type": "Organization",
+    name: SITE.name,
+    url: SITE.url,
+  },
+};
 ---
 
-<BaseLayout title={title} description={description} pathname="/about/">
+<BaseLayout title={title} description={description} pathname="/about/" structuredData={structuredData}>
   <header class="page-hero">
     <div class="shell page-hero-inner">
       <span class="eyebrow">About the project</span>
