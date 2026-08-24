@@ -37,6 +37,14 @@ export type AnalysisFailure =
   | "clipping"
   | "low-confidence";
 
+export type InputLevel = "quiet" | "good" | "loud";
+
+export function classifyInputLevel(rms: number, clippingRatio: number): InputLevel {
+  if (clippingRatio > 0.002 || rms > 0.35) return "loud";
+  if (rms < ANALYSIS_THRESHOLDS.minimumRms * 1.5) return "quiet";
+  return "good";
+}
+
 export function rootMeanSquare(samples: Float32Array): number {
   if (samples.length === 0) return 0;
   let sum = 0;

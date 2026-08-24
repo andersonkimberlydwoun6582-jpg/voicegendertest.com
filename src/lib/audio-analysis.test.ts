@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   analyzeCapturedFrames,
+  classifyInputLevel,
   clippedSampleRatio,
   estimatePitchYin,
   median,
@@ -33,6 +34,13 @@ describe("signal helpers", () => {
   it("calculates RMS and clipping", () => {
     expect(rootMeanSquare(new Float32Array([1, -1, 1, -1]))).toBeCloseTo(1);
     expect(clippedSampleRatio(new Float32Array([1, -1, 0.2, 0]))).toBeCloseTo(0.5);
+  });
+
+  it("classifies live input levels without changing analysis thresholds", () => {
+    expect(classifyInputLevel(0.005, 0)).toBe("quiet");
+    expect(classifyInputLevel(0.08, 0)).toBe("good");
+    expect(classifyInputLevel(0.4, 0)).toBe("loud");
+    expect(classifyInputLevel(0.08, 0.01)).toBe("loud");
   });
 
   it.each([110, 220, 330])("estimates a %i Hz sine wave", (frequency) => {

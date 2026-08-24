@@ -28,6 +28,11 @@ export const faqs = [
       "No. Gender identity cannot be determined from a voice recording. The result describes sound patterns in this recording only and uses neutral, descriptive language instead of assigning a gender.",
   },
   {
+    question: "Is this a male or female voice detector?",
+    answer:
+      "No. It does not determine whether a person is male or female. It measures acoustic characteristics that may influence masculine, feminine, or androgynous vocal presentation and explains their limitations without assigning an identity.",
+  },
+  {
     question: "How accurate is the result?",
     answer:
       "The pitch and signal measurements are engineering estimates, not a clinical or demographic assessment. Accuracy varies with your microphone, room, speaking style, and recording quality. The site does not publish an unvalidated accuracy percentage.",

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  classifyInputLevel,
   analyzeCapturedFrames,
   clippedSampleRatio,
   estimatePitchYin,
@@ -8,13 +9,17 @@ import {
   type AnalysisFailure,
   type AnalysisResult,
   type CapturedFrame,
+  type InputLevel,
 } from "../lib/audio-analysis";
+import { trackVoiceEvent, type VoiceAnalyticsParams } from "../lib/analytics";
+import { compareResults } from "../lib/result-comparison";
 
 type Status = "idle" | "requesting" | "recording" | "processing" | "result" | "error";
 
 type ToolError = {
   title: string;
   message: string;
+  reason: NonNullable<VoiceAnalyticsParams["reason"]>;
 };
 
 const recordingSeconds = 5;
@@ -23,14 +28,17 @@ const failureMessages: Record<AnalysisFailure, ToolError> = {
   "too-quiet": {
     title: "We couldn't hear enough voice",
     message: "Move a little closer to the microphone, speak at a comfortable volume, and try again.",
+    reason: "too_quiet",
   },
   clipping: {
     title: "The recording was too loud",
     message: "Move slightly farther from the microphone and try again without raising your voice.",
+    reason: "clipping",
   },
   "low-confidence": {
     title: "The signal was hard to measure",
     message: "Try a quieter room, use a steady speaking voice, and keep the same distance from your microphone.",
+    reason: "low_confidence",
   },
 };
 
@@ -40,18 +48,21 @@ const errorFromUnknown = (error: unknown): ToolError => {
       return {
         title: "Microphone access is blocked",
         message: "Allow microphone access in your browser settings, then return here and try again.",
+        reason: "permission",
       };
     }
     if (error.name === "NotFoundError" || error.name === "DevicesNotFoundError") {
       return {
         title: "No microphone was found",
         message: "Connect or enable a microphone, then try the test again.",
+        reason: "no_microphone",
       };
     }
     if (error.name === "AbortError" || error.name === "NotReadableError") {
       return {
         title: "The microphone was interrupted",
         message: "Close other apps using the microphone and try again.",
+        reason: "interrupted",
       };
     }
   }
@@ -59,7 +70,14 @@ const errorFromUnknown = (error: unknown): ToolError => {
   return {
     title: "The recording could not be processed",
     message: "Nothing was saved. Check your microphone and try once more.",
+    reason: "processing",
   };
+};
+
+const inputLevelCopy: Record<InputLevel, string> = {
+  quiet: "Too quiet — move a little closer",
+  good: "Good level — keep speaking",
+  loud: "Too loud — move slightly farther away",
 };
 
 const formatHz = (value: number) => `${Math.round(value)} Hz`;
@@ -73,12 +91,15 @@ export default function VoiceAnalyzer() {
   const [status, setStatus] = useState<Status>("idle");
   const [secondsLeft, setSecondsLeft] = useState(recordingSeconds);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [previousResult, setPreviousResult] = useState<AnalysisResult | null>(null);
+  const [inputLevel, setInputLevel] = useState<InputLevel>("quiet");
   const [error, setError] = useState<ToolError | null>(null);
   const [shareMessage, setShareMessage] = useState("");
 
   const reset = () => {
     setStatus("idle");
     setSecondsLeft(recordingSeconds);
+    setInputLevel("quiet");
     setResult(null);
     setError(null);
     setShareMessage("");
@@ -101,53 +122,72 @@ export default function VoiceAnalyzer() {
       url: "https://voicegendertest.com/",
     };
     const copyValue = `${text}\n${shareData.url}`;
+    const canNativeShare = typeof navigator.share === "function";
 
-    try {
-      if (navigator.share) {
+    if (canNativeShare) {
+      trackVoiceEvent("voice_share_attempt", { method: "native" });
+      try {
         await navigator.share(shareData);
+        trackVoiceEvent("voice_share_result", { method: "native", status: "success" });
         setShareMessage("Result shared.");
         return;
+      } catch (shareError) {
+        if (shareError instanceof DOMException && shareError.name === "AbortError") {
+          trackVoiceEvent("voice_share_result", { method: "native", status: "cancelled" });
+          return;
+        }
+        trackVoiceEvent("voice_share_result", { method: "native", status: "failed" });
       }
+    }
 
+    trackVoiceEvent("voice_share_attempt", { method: "clipboard" });
+    try {
       await copyText(copyValue);
+      trackVoiceEvent("voice_share_result", { method: "clipboard", status: "success" });
       setShareMessage("Result copied to your clipboard.");
-    } catch (shareError) {
-      if (shareError instanceof DOMException && shareError.name === "AbortError") return;
-
-      try {
-        await copyText(copyValue);
-        setShareMessage("Result copied to your clipboard.");
-      } catch {
-        setShareMessage("Sharing is unavailable in this browser. You can still take a screenshot of the result.");
-      }
+    } catch {
+      trackVoiceEvent("voice_share_result", { method: "clipboard", status: "failed" });
+      setShareMessage("Sharing is unavailable in this browser. You can still take a screenshot of the result.");
     }
   };
 
   const startRecording = async () => {
+    trackVoiceEvent("voice_test_start");
     setError(null);
     setResult(null);
+    setShareMessage("");
+    setInputLevel("quiet");
 
     if (!window.isSecureContext) {
-      setError({
+      const nextError: ToolError = {
         title: "A secure connection is required",
         message: "Open this tool over HTTPS or localhost so your browser can safely grant microphone access.",
-      });
+        reason: "insecure_context",
+      };
+      setError(nextError);
       setStatus("error");
+      trackVoiceEvent("mic_permission_result", { status: "unavailable" });
+      trackVoiceEvent("voice_test_error", { reason: nextError.reason });
       return;
     }
 
     if (!navigator.mediaDevices?.getUserMedia || typeof AudioContext === "undefined") {
-      setError({
+      const nextError: ToolError = {
         title: "This browser cannot run the test",
         message: "Try the latest version of Chrome, Edge, Firefox, or Safari on a device with a microphone.",
-      });
+        reason: "unsupported_browser",
+      };
+      setError(nextError);
       setStatus("error");
+      trackVoiceEvent("mic_permission_result", { status: "unavailable" });
+      trackVoiceEvent("voice_test_error", { reason: nextError.reason });
       return;
     }
 
     setStatus("requesting");
     let stream: MediaStream | null = null;
     let context: AudioContext | null = null;
+    let microphoneGranted = false;
 
     try {
       stream = await navigator.mediaDevices.getUserMedia({
@@ -158,6 +198,8 @@ export default function VoiceAnalyzer() {
           channelCount: 1,
         },
       });
+      microphoneGranted = true;
+      trackVoiceEvent("mic_permission_result", { status: "granted" });
 
       context = new AudioContext();
       await context.resume();
@@ -181,11 +223,14 @@ export default function VoiceAnalyzer() {
           analyser.getFloatTimeDomainData(timeData);
           analyser.getFloatFrequencyData(frequencyData);
           const rms = rootMeanSquare(timeData);
+          const clippingRatio = clippedSampleRatio(timeData);
           const pitch = estimatePitchYin(timeData, context!.sampleRate);
+
+          setInputLevel(classifyInputLevel(rms, clippingRatio));
 
           frames.push({
             rms,
-            clippingRatio: clippedSampleRatio(timeData),
+            clippingRatio,
             pitch,
             spectralCentroidHz:
               pitch === null
@@ -207,6 +252,7 @@ export default function VoiceAnalyzer() {
         }, recordingSeconds * 1_000);
       });
 
+      trackVoiceEvent("voice_recording_complete");
       setStatus("processing");
       source.disconnect();
       stream.getTracks().forEach((track) => track.stop());
@@ -216,16 +262,26 @@ export default function VoiceAnalyzer() {
 
       const analysis = analyzeCapturedFrames(frames);
       if (!analysis.ok) {
-        setError(failureMessages[analysis.reason]);
+        const nextError = failureMessages[analysis.reason];
+        setError(nextError);
         setStatus("error");
+        trackVoiceEvent("voice_test_error", { reason: nextError.reason });
         return;
       }
 
       setResult(analysis.result);
       setStatus("result");
+      trackVoiceEvent("voice_result_view");
     } catch (caughtError) {
-      setError(errorFromUnknown(caughtError));
+      const nextError = errorFromUnknown(caughtError);
+      setError(nextError);
       setStatus("error");
+      if (!microphoneGranted) {
+        trackVoiceEvent("mic_permission_result", {
+          status: nextError.reason === "permission" ? "denied" : "unavailable",
+        });
+      }
+      trackVoiceEvent("voice_test_error", { reason: nextError.reason });
     } finally {
       stream?.getTracks().forEach((track) => track.stop());
       if (context && context.state !== "closed") await context.close();
@@ -235,13 +291,21 @@ export default function VoiceAnalyzer() {
   const summary = result
     ? `This sample had a ${result.pitchBand} median pitch, ${result.variabilityBand} pitch movement, and a ${result.brightnessBand} spectral balance.`
     : "";
+  const comparison = result && previousResult ? compareResults(previousResult, result) : [];
+
+  const startRetest = () => {
+    if (!result) return;
+    setPreviousResult(result);
+    trackVoiceEvent("voice_test_retest");
+    void startRecording();
+  };
 
   return (
     <section className="analyzer-card" aria-labelledby="analyzer-title">
       <div className="analyzer-heading">
         <span className="eyebrow"><span className="status-dot" /> Local analysis</span>
-        <h2 id="analyzer-title">Hear your voice in a new way</h2>
-        <p>Read the phrase naturally. Five seconds is enough for a first acoustic snapshot.</p>
+        <h2 id="analyzer-title">Free voice gender analyzer in your browser</h2>
+        <p>Record five seconds of natural speech to measure pitch, pitch movement, spectral balance, and recording quality. No upload or account required.</p>
       </div>
 
       <div className="prompt-box">
@@ -274,10 +338,10 @@ export default function VoiceAnalyzer() {
               <span>{secondsLeft}</span>
             </div>
             <strong>Recording your natural speaking voice</strong>
-            <div className="level-bars" aria-hidden="true">
+            <div className={`level-bars level-${inputLevel}`} aria-hidden="true">
               {Array.from({ length: 18 }, (_, index) => <i key={index} />)}
             </div>
-            <p>Keep speaking until the timer finishes.</p>
+            <p className={`input-guidance guidance-${inputLevel}`}>{inputLevelCopy[inputLevel]}</p>
           </div>
         )}
 
@@ -311,32 +375,56 @@ export default function VoiceAnalyzer() {
                 <span>Median pitch</span>
                 <strong>{formatHz(result.medianPitchHz)}</strong>
                 <small>{result.pitchBand} in this sample</small>
+                <p>The central pitch across usable speech frames.</p>
               </article>
               <article className="metric-card">
                 <span>Pitch movement</span>
                 <strong>{result.variabilityBand}</strong>
                 <small>{result.pitchVariabilitySemitones.toFixed(1)} semitone IQR</small>
+                <p>How much pitch moved during this phrase.</p>
               </article>
               <article className="metric-card">
                 <span>Spectral balance</span>
                 <strong>{result.brightnessBand}</strong>
                 <small>{formatHz(result.spectralCentroidHz)} brightness proxy</small>
+                <p>A limited brightness proxy, not full resonance.</p>
               </article>
               <article className="metric-card">
                 <span>Recording quality</span>
                 <strong>{result.qualityBand}</strong>
                 <small>{Math.round(result.voicedCoverage * 100)}% measurable frames</small>
+                <p>How much of this sample could be measured reliably.</p>
               </article>
             </div>
+
+            {comparison.length > 0 && (
+              <div className="comparison-panel">
+                <div>
+                  <span className="result-kicker">Compared with your previous recording</span>
+                  <h4>Small changes are shown without turning them into a score.</h4>
+                </div>
+                <div className="comparison-grid">
+                  {comparison.map((item) => (
+                    <div key={item.label}>
+                      <span>{item.label}</span>
+                      <strong>{item.value}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="result-note">
               <strong>This result describes this recording, not your gender identity.</strong>
               <p>Voice perception also involves resonance, articulation, context, and listener expectations that this browser test cannot fully measure.</p>
+              <a href="/resources/voice-pitch-vs-gender-presentation/">Learn how pitch relates to gender presentation <span aria-hidden="true">→</span></a>
             </div>
 
             <div className="result-actions">
               <button className="primary-button" type="button" onClick={shareResult}>Share result</button>
-              <button className="secondary-button" type="button" onClick={reset}>Record again</button>
+              <button className="secondary-button" type="button" onClick={startRetest}>
+                {previousResult ? "Compare one more recording" : "Compare another recording"}
+              </button>
             </div>
             <p className="share-message" role="status" aria-live="polite">{shareMessage}</p>
           </div>
